@@ -1,6 +1,7 @@
 package main
 
 import (
+	"blockchainEtheriumGRPC/api/proto"
 	"blockchainEtheriumGRPC/conf"
 	"blockchainEtheriumGRPC/pkg/service"
 	"fmt"
@@ -48,7 +49,7 @@ func startGrpcServer() error {
 	}
 	s := service.Server{}
 	grpcServer = grpc.NewServer()
-	service.RegisterGrpcServiceServer(grpcServer, &s)
+	proto.RegisterGrpcServiceServer(grpcServer, &s)
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %s", err)
 	}

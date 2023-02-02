@@ -1,33 +1,30 @@
 package service
 
 import (
+	"blockchainEtheriumGRPC/api/proto"
 	"blockchainEtheriumGRPC/pkg/blockchain"
 	"golang.org/x/net/context"
 	"log"
 )
 
 type Server struct {
+	proto.UnimplementedGrpcServiceServer
 }
 
-func (s *Server) mustEmbedUnimplementedGrpcServiceServer() {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Server) GetWallet(ctx context.Context, in *Message) (*Message, error) {
+func (s *Server) GetWallet(ctx context.Context, in *proto.Message) (*proto.Message, error) {
 	log.Printf("get wallet with name: %s", in.Body)
 
 	walletName, balance := blockchain.ReadWalletSmartContract(in.Body)
 	result := "Wallet name: " + walletName + ", balance: " + balance
-	return &Message{Body: result}, nil
+	return &proto.Message{Body: result}, nil
 }
 
-func (s *Server) CreateWallet(ctx context.Context, wallet *WalletCreate) (*Message, error) {
+func (s *Server) CreateWallet(ctx context.Context, wallet *proto.WalletCreate) (*proto.Message, error) {
 	log.Printf("create wallet with name: %s, balance: %d", wallet.WalletName, wallet.Balance)
-	return &Message{Body: blockchain.CreateWalletSmartContract(wallet.WalletName, wallet.Balance)}, nil
+	return &proto.Message{Body: blockchain.CreateWalletSmartContract(wallet.WalletName, wallet.Balance)}, nil
 }
 
-func (s *Server) SendMoneyWallet(ctx context.Context, money *SendMoney) (*Message, error) {
+func (s *Server) SendMoneyWallet(ctx context.Context, money *proto.SendMoney) (*proto.Message, error) {
 	log.Printf("transfer of wallet named: %s, to wallet named: %s, send money: %d", money.WalletSender, money.WalletRecipient, money.SendMoney)
-	return &Message{Body: blockchain.SendMoneySnartContract(money.WalletSender, money.WalletRecipient, money.SendMoney)}, nil
+	return &proto.Message{Body: blockchain.SendMoneySnartContract(money.WalletSender, money.WalletRecipient, money.SendMoney)}, nil
 }
