@@ -24,6 +24,8 @@ var accountPrivateKey = conf.ViperEnvVariable("accountPrivateKey", pathConfig)
 var accountHexAddress = conf.ViperEnvVariable("accountHexAddress", pathConfig)
 var smartContractHexAddress = conf.ViperEnvVariable("smartContractHexAddress", pathConfig)
 
+var ClientBlockchain *ethclient.Client
+
 func CheckContract(contractHexAddress string) bool {
 
 	client, err := ethclient.Dial(gateway)
@@ -342,7 +344,8 @@ func ReadWalletSmartContract(nameWallet string) (string, string) {
 }
 
 func CreateWalletSmartContract(nameWallet string, balance int64) string {
-	auth, instance := ConnectChangeContract(gateway, smartContractHexAddress, accountPrivateKey)
+
+	auth, instance := ConnectChangeContract(smartContractHexAddress, accountPrivateKey)
 	tx, err := instance.SetWallet(auth, nameWallet, big.NewInt(balance))
 	if err != nil {
 		log.Fatal(err)
@@ -352,7 +355,7 @@ func CreateWalletSmartContract(nameWallet string, balance int64) string {
 }
 
 func SendMoneySnartContract(nameWalletSender string, nameWalletRecipient string, sendMoney int64) string {
-	auth, instance := ConnectChangeContract(gateway, smartContractHexAddress, accountPrivateKey)
+	auth, instance := ConnectChangeContract(smartContractHexAddress, accountPrivateKey)
 	tx, err := instance.SendMoney(auth, nameWalletSender, nameWalletRecipient, big.NewInt(sendMoney))
 	if err != nil {
 		log.Fatal(err)
@@ -372,10 +375,10 @@ func ConnectContract(gatewayInput string, smartContractHexAddressInput string) (
 	return client, address
 }
 
-func ConnectChangeContract(gateway string, smartContractHexAddress string, accountPrivateKey string) (*bind.TransactOpts, *api.Api) {
-	client, err := ethclient.Dial(gateway)
-	if err != nil {
-		log.Fatal(err)
+func ConnectChangeContract(smartContractHexAddress string, accountPrivateKey string) (*bind.TransactOpts, *api.Api) {
+
+	if ClientBlockchain == nil {
+		ClientBlockchain = getClient()
 	}
 
 	privateKey, err := crypto.HexToECDSA(accountPrivateKey)
@@ -390,9 +393,10 @@ func ConnectChangeContract(gateway string, smartContractHexAddress string, accou
 	}
 
 	fromAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
-	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
+	nonce, err := ClientBlockchain.PendingNonceAt(context.Background(), fromAddress)
 	if err != nil {
 		log.Fatal(err)
+		ClientBlockchain = nil
 	}
 
 	auth := bind.NewKeyedTransactor(privateKey)
@@ -402,9 +406,19 @@ func ConnectChangeContract(gateway string, smartContractHexAddress string, accou
 	auth.GasPrice = big.NewInt(1000000000) // in wei
 
 	address := common.HexToAddress(smartContractHexAddress)
-	instance, err := api.NewApi(address, client)
+	instance, err := api.NewApi(address, ClientBlockchain)
 	if err != nil {
 		log.Fatal(err)
+		ClientBlockchain = nil
 	}
 	return auth, instance
+}
+
+func getClient() *ethclient.Client {
+	client, err := ethclient.Dial(gateway)
+	if err != nil {
+		log.Fatal(err)
+
+	}
+	return client
 }

@@ -3,7 +3,8 @@ package main
 import (
 	"blockchainEtheriumGRPC/api/proto"
 	"blockchainEtheriumGRPC/conf"
-	"blockchainEtheriumGRPC/pkg/service"
+	"blockchainEtheriumGRPC/internal/blockchain"
+	"blockchainEtheriumGRPC/internal/service"
 	"fmt"
 	"google.golang.org/grpc"
 	"log"
@@ -59,4 +60,5 @@ func startGrpcServer() error {
 func shutdownGrpcServer() {
 	log.Println("shutting down...")
 	grpcServer.GracefulStop()
+	blockchain.ClientBlockchain.Close()
 }

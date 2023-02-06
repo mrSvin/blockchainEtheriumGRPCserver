@@ -2,7 +2,7 @@ package service
 
 import (
 	"blockchainEtheriumGRPC/api/proto"
-	"blockchainEtheriumGRPC/pkg/blockchain"
+	"blockchainEtheriumGRPC/internal/blockchain"
 	"golang.org/x/net/context"
 	"log"
 )

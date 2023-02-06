@@ -92,7 +92,6 @@ func TestSetWallet(t *testing.T) {
 }
 
 func TestSendMoney(t *testing.T) {
-
 	nameWalletSender := "one"
 	nameWalletRecipient := "two"
 	sendMoney := big.NewInt(20)
@@ -104,6 +103,7 @@ func TestSendMoney(t *testing.T) {
 	var beforeMoneyWalletOne *big.Int
 	beforeMoneyWalletOne = getWalletOne.Balance
 	beforeMoneyWalletTwo := getWalletTwo.Balance
+
 	_, err = instance.SendMoney(auth, nameWalletSender, nameWalletRecipient, sendMoney)
 	if err != nil {
 		log.Fatal(err)
