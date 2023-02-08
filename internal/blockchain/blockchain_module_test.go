@@ -1,7 +1,7 @@
 package blockchain
 
 import (
-	"blockchainEtheriumGRPC/api"
+	"blockchainEtheriumGRPC/binding"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind/backends"
 	"github.com/ethereum/go-ethereum/common"
@@ -113,7 +113,7 @@ func TestModuleSendMoney(t *testing.T) {
 
 }
 
-func createSimulateContract() (common.Address, *backends.SimulatedBackend, *types.Transaction, *bind.TransactOpts, *api.Api) {
+func createSimulateContract() (common.Address, *backends.SimulatedBackend, *types.Transaction, *bind.TransactOpts, *binding.Api) {
 	privateKey, err := crypto.GenerateKey()
 	if err != nil {
 		log.Fatal(err)
@@ -133,11 +133,11 @@ func createSimulateContract() (common.Address, *backends.SimulatedBackend, *type
 	blockGasLimit := uint64(4712388)
 	client := backends.NewSimulatedBackend(genesisAlloc, blockGasLimit)
 
-	address, tx, _, err := api.DeployApi(auth, client)
+	address, tx, _, err := binding.DeployApi(auth, client)
 	if err != nil {
 		log.Fatal(err)
 	}
-	instance, err := api.NewApi(address, client)
+	instance, err := binding.NewApi(address, client)
 
 	return address, client, tx, auth, instance
 }

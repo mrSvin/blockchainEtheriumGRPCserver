@@ -11,8 +11,12 @@
 go get all
 ```
 
+## Генерирование исполняемых файлов gRPC
+```
+
+```
+
 ## Создание билда и генерирование контракта для взаимодействия с go
-Build abi, bin & auto-generate SimpleStorage.go file 
 ```
 solcjs --optimize --abi --bin ./SimpleStorage.sol -o build
 mkdir api
@@ -20,9 +24,8 @@ abigen --bin=./build/Store_sol_Store.bin --abi=./build/Store_sol_Store.abi --pkg
 ```
 ## Генерирование испоняемых proto файлов gRPC
 ```
-protoc proto/blockchain.proto --go-grpc_out=api --go_out=api
+protoc proto/blockchain.proto --go-grpc_out=. --go_out=.
 ```
-
 
 ## Ganache
 Запустить Ganache Etherium
