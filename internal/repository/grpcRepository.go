@@ -3,40 +3,39 @@ package repository
 import (
 	"blockchainEtheriumGRPC/internal/blockchain"
 	"blockchainEtheriumGRPC/proto"
-	"context"
 	"google.golang.org/grpc"
-	"log"
 )
 
 var grpcServer *grpc.Server
 
-type Server struct {
-	proto.UnimplementedGrpcServiceServer
+func StopServer() {
+	grpcServer.GracefulStop()
 }
 
-func NewServer() *Server {
-	return &Server{}
+type WalletRepository interface {
+	GetWallet(name string) (*proto.Message, error)
+	CreateWallet(wallet *proto.WalletCreate) (*proto.Message, error)
+	SendMoneyWallet(money *proto.SendMoney) (*proto.Message, error)
 }
 
-func (s *Server) GetWallet(ctx context.Context, in *proto.Message) (*proto.Message, error) {
-	log.Printf("get wallet with name: %s", in.Body)
+type WalletRepositoryImpl struct {
+}
 
-	walletName, balance := blockchain.ReadWalletSmartContract(in.Body)
+func NewWalletRepository() WalletRepository {
+	return &WalletRepositoryImpl{}
+}
+
+func (w *WalletRepositoryImpl) GetWallet(name string) (*proto.Message, error) {
+	walletName, balance := blockchain.ReadWalletSmartContract(name)
 	result := "Wallet name: " + walletName + ", balance: " + balance
 	return &proto.Message{Body: result}, nil
 }
 
-func (s *Server) CreateWallet(ctx context.Context, wallet *proto.WalletCreate) (*proto.Message, error) {
-	log.Printf("create wallet with name: %s, balance: %d", wallet.WalletName, wallet.Balance)
+func (w *WalletRepositoryImpl) CreateWallet(wallet *proto.WalletCreate) (*proto.Message, error) {
 	result := blockchain.CreateWalletSmartContract(wallet.WalletName, wallet.Balance)
 	return &proto.Message{Body: result}, nil
 }
 
-func (s *Server) SendMoneyWallet(ctx context.Context, money *proto.SendMoney) (*proto.Message, error) {
-	log.Printf("transfer of wallet named: %s, to wallet named: %s, send money: %d", money.WalletSender, money.WalletRecipient, money.SendMoney)
+func (w *WalletRepositoryImpl) SendMoneyWallet(money *proto.SendMoney) (*proto.Message, error) {
 	return &proto.Message{Body: blockchain.SendMoneySnartContract(money.WalletSender, money.WalletRecipient, money.SendMoney)}, nil
-}
-
-func StopServer() {
-	grpcServer.GracefulStop()
 }
